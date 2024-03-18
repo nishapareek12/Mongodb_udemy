@@ -1,0 +1,346 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.22621}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 * To create database and collections directly from mongo shell\par
+1.open mongoshell \par
+2. to see the databases present: show dbs\par
+3.to create new database or entering the existing database: use db_name\par
+4.to insert collection in that database: db.collection_name.insertone()\par
+inside this insertone you can enter your data in json format.\par
+eg: db.products.insertOne(\{name:"book", price:30\})\par
+5. to find from existing collection.\par
+eg:db.products.find()\par
+this will retrive everything present in products collection.\par
+6.To insert more than one document you  can use insertMany()\par
+7.Mongodb shell is the common platform while working will different programming  languages. Instead of mongodb shell you can also use mongodb drivers for different programming languages eg: mongodb driver for node, python , etc \par
+8.collection: tables\par
+ documents are data pieces inside the collection.per collection many documents. \par
+ 9.Mongodb stores the data in BSON format which is binery format.\par
+10. 2 documents in MongoDB does not need to have same schema. it can be different.\par
+11. Id is assigned to mongodb documents automatically. but if we want to asssign id manually we can do that by using  _id as field name and then we can give it any value we want.\par
+12. CRUD operations in mongodb\par
+     1. Create\par
+       1.insertOne(data, options)\par
+       2. insertMany(data, options)\par
+    2.Update\par
+       1.updateOne(filter, data, options) \par
+       2.updateMany(filter, data, options) \par
+       3.replaceOne(filter, data, options) \par
+    3.Read\par
+       1.find(filter, options)\par
+       2.findOne(filter, options)\par
+   4. Delete\par
+       1.deleteOne(filter, options)\par
+       2.deleteMany(filter, options)\par
+In filter we can put any key value pair from our documents in curly braces\par
+eg: db.flightData.deleteOne(\{f_name: "Indigo"\})\par
+         flightData is collection here and f_name is field in documents.\par
+13.Mongodb uses doller($) sign for reserverd operator \par
+         eg.  $set : \{key: value\}\par
+                we use this in update operations.\par
+14. while using updateOne and updateMany we use $set:   but if we use just update we dont need $set keyword. using update will not add on new value but it will totally overwite the whole object with new content inside update. it works same as replaceOne()\par
+15. Find() does not return whole array of data but it returns the cursor object.Cursor help us to cycle through the results.after specific amount of data it take us to next bunch of data.It gives first 20 documents by default.\par
+16.As find() return cursor we can use many methods on it.like pretty().\par
+17. if we want to include some specific fields only, we use projection on find method. like if i want on name , age fields from many fields present. then i can do it as:\par
+   db.passengers.find(\{ \}, \{name: 1, age: 1\})   \par
+here in the 2nd argument of find method i used projection. i put value one for the fields i want in my output. Id is default fields in output if i dont want that i put id: 0.\par
+18. we can also use nested documents.\par
+19. if we want to access from nested documents, we can do it after findOne\par
+eg: inside passengers collection, we have hobbies array. to access all elements from that array, \par
+   db.passengers.findOne(\{name: "nisha"\}).hobbies\par
+ 20. to delete all elements:\par
+      db.collection_name.deleteMany()\par
+21.for merging Reference relations of different collections we use lookUp() .\par
+suppose i have two collections : customers and  books \par
+customers:\par
+\{ \par
+            userName: "max",\par
+            favBooks": ["id1", "id2"]\par
+\}\par
+Books:\par
+\{\par
+      _id: "id1",\par
+       name: "Lord of Rings"\par
+\}\par
+\par
+customers.aggregate([\par
+\{  $lookup : \{\par
+       from: "books"\par
+       localfield: "favBooks",\par
+       foreignField: "_id",\par
+       as: favBookdata\par
+       \}\}\par
+])\par
+22.one way of creating collection is while inserting data. that is implicit way , collection is created drectly  while inserting data eg. db.posts.insertOne(). Here posts collection is created directly. Another way of creating collection is explitly creating it using createCollection method , db.createCollection()\par
+23.createCollection method have many various arguments, db.createCollection("posts", \{validator:\{\}\}). first argument is name of collection, 2nd argument is validator.\par
+22. Validating MongoDB schema: validator in second argument of create collection take another subdocument where we can define another scema which validate inserts or updates. that subdocument is $jsonSchema. Here we can define shema for every document added to the collection.\par
+db.createCollection("posts", \{validator: \{$jsonSchema: \{bsonType:"object", required: ["title", "text", "creator", "comments"], properties: \{\par
+title:\{\par
+    bsonType: "string",\par
+     description: "must be a string and is required"\par
+\},\par
+text: \{\par
+     bsonType: "string",\par
+     description: "must be  a text and is required"\par
+\} \par
+\}\}\}\})\par
+\par
+23. Files in mongodb .data, .log, .config\par
+24. Importing data in mongodb: you need mongodb tools installed in your system for this\par
+      a. navigate to that folder in command prompt\par
+      b.  mongoimport "C:\\Users\\NishaPareek\\Documents\\008 tv-shows.json" -d tv-data -c movies --jsonArray --drop\par
+      c. if the file is array of json data we add jsonArray, --drop will drop the table if it already existed.\par
+25. Reading data: \par
+db.collection_name.find(\{filter\})\par
+db.movies.find(\{age: \{$gt : 30\}\})\par
+26.querying document\par
+        *comparison operators:  \par
+          $eq: Matches values that are equal to a specified value.\par
+          $gt: Matches values that are greater than a specified value.\par
+          $gte: Matches values that are greater than or equal to a specified value.\par
+          $in: Matches any of the values specified in an array.\par
+          $lt: Matches values that are less than a specified value.\par
+          $lte: Matches values that are less than or equal to a specified value.\par
+           $ne: Matches all values that are not equal to a specified value.\par
+           $nin: Matches none of the values specified in an array.\par
+         *Embedded operators: \par
+          if i want to access embedded fields, like   rating \{  average: 4.0\} then we choose dot     operator inside quotations\par
+          db.movies.find("rating.average" : \{$gt: 7\})\par
+      *$in and $nin\par
+           to check for availability or non availability :\par
+             db.movies.find(\{runtime: \{$in: [32, 43]\}\})\par
+       *$or and $nor\par
+           db.movies.find(\{$or: [\{"rating.average": \{$lt :5 \}\}, \{"rating.average":\{$gt: 9.3\}\}]\})\par
+       *$and\par
+           db.movies.find($and: [\{"rating.average": \{$gt: 9\}\},\{genere: "Drama"\}])\par
+        *$not\par
+           db.movies.find(\{runtime: \{$not : \{$eq: 60\}\}\})\par
+          *$type\par
+             db.movies.find(\{phone: \{$type: "double"\}\})\par
+           *$expr (Evaluation operator) \par
+             *$size\par
+                to find user with exactly 3 hobbies,\par
+              db.users.find(\{hobbies: \{$size: 3\}\})\par
+               *$all\par
+                if we want to get all matches, despite of any order they have we use $all\par
+                 eg:  if we use, db.movie.find(\{genere: ["action", "thriller"]\})  we will get only    matches where  action comes before thriller.\par
+                 but if we use all, db.movie.find(\{genere: \{$all: ["action", "thriller"]\}\})\par
+                 *$elemMatch\par
+                   if we use db.users.find(\{$and: [\{"hobbies.title": "sports"\},\{"hobbies.frequency": \{$gte: 3\}\}]\})   this will return two docs , one with hobby sports and other with  freq greater than equal to 3. as here we have not mentioned that we want it in same document.\par
+to overcome this, we have $elemMatch\par
+db.users.find(\{hobbies: \{$elemMatch: \{title: "sports", frequency:\{$gte : 3\}\}\}\}),\par
+this will return a single document which match this cndtion.\par
+\par
+27. Cursors: cursors store the query, and then request the next batch of query. find() method returns the cursor so it return limited data and then it will return next batch of data.by default it fetch only 20 documents at first go.\par
+\par
+28. we can also sort using cursors,\par
+  db.movies.find().sort(\{"rating.average": 1\}) , here 1 means ascending order and  -1 means descending order.\par
+- you can also sort inside sorted list, ie. nested sorting\par
+  db.movies.find().sort(\{"rating.average": 1, runtime: 1\})\par
+-we can also sort and limit the elements on cursor.\par
+-to skip the worst rated elements, \par
+ db.movies.find().sort(\{"rating.average": 1, runtime: 1\}).skip(100).limit(10). \par
+29. Projection allow us to define how data should be projected. ie, if we want limited fields than we can specifiy them as second argument with value 1  in find method (first argument is filter). Thus only these fields will be in output.\par
+db.movies.find(\{ \}, \{name: 1, genere: 1, runtime: 1, rating: 1\})\par
+30.Update quaries: \par
+ * updateOne:\par
+  db.users.updateOne(\{filter\}, \{$set: \{field_to_update\}\})\par
+   db.users.updateOne(\{_id: ObjectId("dhjhfjhreerjguey8374576")\}, \{$set: \{hobbies: [\{title: "sports", frequecy: 5\}, \{title: "cooking", frequency: 6\}]\}\})\par
+ $set will overwrite or add values in the  first matched document it will not define new document.\par
+ *updateMany\par
+    if i want to add new field to all the users having sports hobby, isSporty = true , i can do this using updateMany.\par
+    db.users.updateMany(\{"hobbies.title": "Sports"\}, \{$set: \{isSporty: true\}\})\par
+ *to update multiple fields\par
+   db.users.updateOne(\{_id: ObjectId("dhjhfjhreerjguey8374576") \}, \{$set: \{age: 40, phone: 758378768758\}\})\par
+ this will add two new fields age and phone to matching id.\par
+*Incrementing and decremanting values.\par
+ for incrementing and decremanting values we dont use $set we have dedicated operator for that. \par
+  db.users.updateOne(\{name: "Manual"\}, \{$inc: \{ age: 2\}\})\par
+ this will increment the age by 2.\par
+ to decrement the value , we use  minus sign.\par
+  db.users.updateOne(\{name: "Manual"\}, \{$inc: \{ age: -2\}\})\par
+ we can also use set operator along with inc, \par
+  db.users.updateOne(\{name: "Manual"\}, \{$inc: \{ age: 2\}, $set: \{isSporty: true\}\})\par
+*$min and $max\par
+db.users.updateOne(\{name: "chris"\}, \{$max: \{age: 32\}\})\par
+this ensures that maximum age will be 32  more than that will not be accepted.\par
+db.users.updateOne(\{name: "chris"\}, \{$min: \{age: 32\}\})\par
+this ensures that maximum age will be 32  less than that will not be accepted.\par
+*To drop fields\par
+to drop fields , use $unset\par
+-db.users.updateMany(\{isSporty: true\}, \{$unset: \{phone: ""\}\})\par
+-this will remove the phone field wherever issporty is true.\par
+*to rename \par
+db.users.updateMany(\{\}, \{$rename: \{age: "totalAge"\}\})\par
+this will rename age field to totalAge wherever it is present.\par
+*Upsert()\par
+upsert is combination of update and insert. if document exists , it updates it. if it doesn't, it insert the document.\par
+db.users. updateOne(\{name: "maria"\}, $set: \{age: 29, hobbies: [\{title: "good food", freequency: 4\}, \{title: "sports", frequency: 6\}]\}, \{upsert: true\})\par
+32. updating matched array elements\par
+hobbies.$ will refer to  the first matching element matched with condition specified by $elemMatch\par
+db.users.updateMany(\{hobbies: \{$elemMatch: \{title: "sports", frequency: \{$gte: 3\}\}\}\}, \{$set: \{"hobbies.$.highFrequency": true \}\})\par
+highfrequency field will be added wherever the condition of elemMatch is matched.\par
+*updating all array elements.\par
+for particular elements we just use $ sign, eg:  hobbies.$  but if we want ti apply changes on all matching array elements, we use square brackets with $ sign.\par
+db.users.updateMany(\{totalAge: \{$gt: 30\}\}, \{$inc: \{"hobbies.$[].frequency": -1\}\})\par
+*Adding elements to Arrays\par
+db.users.updateOne(\{name: "maria"\}, \{$push: \{hobbies: \{title: "sports", frequency: 2\}\}\})\par
+this will add new hobby to hobbies array.\par
+*Removing elements from array\par
+db.users.updateOne(\{name: "maria"\}, \{$pull: \{hobbies: \{title: "Good Wine"\}\}\})\par
+this will remove the first matching element.Hence used to remove dplicates.\par
+we can also remove last element of array without any filter criteria, \par
+db.users.updateOne(\{name: "maria"\}, \{$pop: \{hobbies: 1\}\})\par
+adding 1 will remove last element from hobbies, to remove first element we put -1.\par
+33. deleting elements from array\par
+db.users.deleteOne(\{name: "chris"\})\par
+this will delete first matching element\par
+db.users.deleteMany(\{age: \{$gt: 30\}, isSporty: true\})\par
+this will delete all matching elements\par
+-to delete all entries , \par
+db.users.deleteMany(\{\}) or  \par
+db.users.drop() , this will return true if it is deleted.\par
+-to drop  entire database, \par
+db.dropDatabase()\par
+34. Indexes\par
+explain() : method is used to analyze and understand how MongoDB processes a query and to help optimize query performance.we can find execution time using command:\par
+db.contac ts.explain("executionStats).find(\{"dob.age": \{$gt: 60\}\})\par
+*createIndex() method\par
+-db.contacts.createIndex(\{"dob.age": 1\})\par
+here first argument is the field on which we want to create index on. here we are creating index on embedded field. and 1 means  ascending order.\par
+ *compound Index\par
+-we can also create index by grouping two or more fields , called compund index\par
+db.contacts.createIndex(\{"dob.age": 1, gender: 1\})  \par
+-we can also use indexing for sorting\par
+db.contacts.explain().find(\{"dob.age": 35\}).sort(\{gender: 1\})\par
+this will find out all the people of age 35 and sort them according to gender.\par
+*getIndexes()\par
+we can see all the indexes present using getIndexes method.\par
+db.contacts.getIndexes()\par
+*configuring index\par
+db.contacts.createIndex(\{email: 1\}, \{unique: true\})\par
+This ensures that no two documents in the collection can have the same value for the email field.\par
+*understanding partial filters\par
+db.contacts.createIndex(\{"dob.age": 1\}, \{partialFilterExpression: \{gender: "male"\}\})\par
+This command will create an index on the dob.age field in the contacts collection. However, this index will only be applied to documents where the gender field is "male".\par
+ *Text Index\par
+db.products.createIndex(\{description: "text"\})          \par
+now we can search using description, \par
+db.products.find(\{$text: \{$search: "awesome"\}\}), here instead of aweasome you can put any word you want to search.\par
+35. Geospatial Queries\par
+-db.places.insertOne(\{name: "california academy of science",location: \{type: "point", coordinates: [-122.4686696, 37.7698646]\}\})\par
+-here we have to add name of place, inside locattion we add type and coordoinates of that respective place.first we have to add longitude and then latitude.\par
+-now create geospatial index, \par
+db.places.createIndex(\{location: "2dsphere"\})\par
+-now to find nearby places,\par
+db.places.find(\{location: \{$near:\{$geometry:\{type:"Point", coordinates: [-122.471114, 37.771104], $maxDistance: 500, $minDistance: 10\}\}\}\}).pretty()\par
+this will return university of california as it is nearest place to this location.\par
+36. Aggregate function.\par
+In MongoDB, aggregate functions are used to perform operations on data stored in collections. These functions allow you to perform various transformations, filtering, grouping, and computations on the data.\par
+Aggregete function has pipeline state, means each function , after executing , passes data to next function.\par
+db.persons.aggregate([\{ $match: \{ gender: "female" \}\}])\par
+*group stage: It allow you to group your data by certain field.\par
+inside _id, we metion the field by which we need to group:\par
+db.persons.aggregate([\par
+  \{ $group: \{ _id: \{ state: "$location.state" \}, totalPersons: \{ $sum: 1 \} \} \},\par
+]);\par
+thus it will do grouping according to state and will store total no of persons in totalPersons variable.\par
+*sorting\par
+we can sort after calculating total data from group stage.as it is pipeline, the totalPersons is passed to next state.\par
+db.persons.aggregate([\par
+  \{ $group: \{ _id: \{ state: "$location.state" \}, totalPersons: \{ $sum: 1 \} \} \},\par
+  \{ $sort: \{totalpersons: -1\}\}\par
+]);\par
+*$project\par
+This works same as projection field.We give the value we want output and set it value as one. we can also manupulate the values using different methods such as $concat.\par
+db.persons.aggregate([\par
+  \{\par
+    $project: \{\par
+      _id: 0,\par
+      gender: 1,\par
+      fullName: \{ $concat: ["$name.first"," " , "$name.last"] \},\par
+    \},\par
+  \},\par
+]);\par
+*Turning location into geoJSON object\par
+db.persons.aggregate([\par
+  \{\par
+    $project: \{\par
+      _id: 0,\par
+      gender: 1,\par
+      fullName: \{ $concat: ["$name.first", "$name.last"] \},\par
+      location: \{\par
+        type: "Point",\par
+        coordinates: [\par
+          \{\par
+            $convert: \{\par
+              input: "$location.coordinates.longitude",\par
+              to: "double",\par
+              onError: 0.0,\par
+              onNull: 0.0,\par
+            \},\par
+          \},\par
+          \{\par
+            $convert: \{\par
+              input: "$location.coordinates.latitude",\par
+              to: "double",\par
+              onError: 0.0,\par
+              onNull: 0.0,\par
+            \},\par
+          \},\par
+        ],\par
+      \},\par
+    \},\par
+  \},\par
+]);\par
+*Filter operator in $project\par
+db.friends.aggregate([\par
+  \{\par
+    $project: \{\par
+      _id: 0,\par
+      scores: \{\par
+        $filter: \{\par
+          input: "$examScores",\par
+          as: "sc",\par
+          cond: \{ $gt: ["$$sc.score", 60] \},\par
+        \},\par
+      \},\par
+    \},\par
+  \}, \par
+]); \par
+37. Mongodb security:\par
+*authentication and authorization\par
+-start your mongodb server with mongod --auth command \par
+-now we can sign in using db.auth('user_name', 'password') after writing mongo in different cmd window (for establishing connection) or  we can also do this during establishing connection mongo -u user_name -p password. we have to create user before this.\par
+-without signing in, we are not allowed to access any database or collection, the only thing we can do is to add a user.we can do this by switching to admin database. (use db)\par
+-steps to create user: \par
+1.use admin\par
+2.db.createUser(\{user: "max", pwd: "maxpassword", roles: ["userAdminAnyDatabase"]\})\par
+after creating this user, we can connect using this id, password and we can access database, collections and create more users.\par
+38. Capped collections\par
+In MongoDB, a capped collection is a fixed-size collection that automatically maintains the insertion order of documents. Once a capped collection reaches its maximum size, it behaves like a circular queue, where new documents replace older ones.\par
+db.createCollection("capped",\{capped: true, size: 10000, max: 3\})\par
+39. Sharding in MongoDB is a method for distributing data across multiple machines. It's MongoDB's approach to horizontal scaling, allowing you to store very large data sets that exceed the storage capacity of a single machine. Sharding involves breaking down data into smaller subsets called shards and distributing those subsets across multiple servers or nodes in a cluster.\par
+40.Transactions in mongodb.\par
+Transactions can include read and write operations on multiple documents within a single database.\par
+To use transactions, you need to start a session with startSession() method.\par
+A session is started using startSession().\par
+A transaction is initiated using startTransaction().\par
+Two documents are inserted into two different collections within the transaction.\par
+If any error occurs during the transaction, it is caught, and the transaction is aborted using abortTransaction().\par
+If the transaction completes successfully, changes are committed to the database using commitTransaction().\par
+session = db.getMongo().startSession()\par
+session.startTransaction()\par
+try \{\par
+   db.collection1.insertOne(\{ _id: 1, value: "document1" \}, \{ session: session \})\par
+   db.collection2.insertOne(\{ _id: 2, value: "document2" \}, \{ session: session \})\par
+   session.commitTransaction()\par
+\} catch (error) \{\par
+   print("Transaction aborted. Error:", error)\par
+   session.abortTransaction()\par
+\}\par
+41. From shell to driver\par
+Shell : configure database, create collections, create indexes\par
+Driver: CRUD operations, Aggregation pipelines.\par
+\par
+}
+ 
